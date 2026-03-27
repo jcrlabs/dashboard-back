@@ -95,5 +95,5 @@ El home (`home.jcrlabs.net`) consume estos endpoints para mostrar estado de cada
 
 ## Referencia base
 
-- Primer proyecto del portfolio: `github.com/jonathanCaamano/inventory-back`
+- Primer proyecto del portfolio: `github.com/jcrlabs/inventory-back`
 - Todos los proyectos siguen los mismos patrones que el inventory

@@ -170,3 +170,20 @@ rules:
 - **ServiceAccount** con ClusterRoleBinding read-only
 - **Redis**: sidecar o servicio compartido
 - **PostgreSQL**: PVC 5Gi (métricas históricas)
+
+## CI local
+
+Ejecutar **antes de cada commit** para evitar que lleguen errores a GitHub Actions:
+
+```bash
+gofmt -l .                      # no debe mostrar ficheros
+go vet ./...
+golangci-lint run --timeout=5m
+go test -race ./...
+```
+## Git
+
+- Ramas: `feature/`, `bugfix/`, `hotfix/`, `release/` — sin prefijos adicionales
+- Commits: convencional (`feat:`, `fix:`, `chore:`, etc.) — sin mencionar herramientas externas ni agentes en el mensaje
+- PRs: título y descripción propios del cambio — sin mencionar herramientas externas ni agentes
+- Comentarios y documentación: redactar en primera persona del equipo — sin atribuir autoría a herramientas
