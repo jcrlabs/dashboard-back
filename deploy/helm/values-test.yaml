@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  tag: develop-abc1234
+  pullPolicy: Always
+
+ingress:
+  host: dashboard-api-test.jcrlabs.net
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 2
