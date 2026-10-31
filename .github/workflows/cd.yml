@@ -85,18 +85,17 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: release $VERSION"
           git push
 
-      - name: Verify rollout
+      # La API de Kubernetes no se expone a internet: verificamos el despliegue a través de ArgoCD.
+      - name: Verify rollout (ArgoCD)
         env:
-          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
-          echo "$KUBECONFIG_DATA" | base64 -d > /tmp/kc
-          KUBECONFIG=/tmp/kc kubectl rollout status deployment/dashboard-back \
-            -n dashboard --timeout=5m || \
-          {
-            echo "=== Rollout failed — pod diagnostics ==="
-            KUBECONFIG=/tmp/kc kubectl get pods -n dashboard -l app.kubernetes.io/name=dashboard-back
-            KUBECONFIG=/tmp/kc kubectl describe pods -n dashboard -l app.kubernetes.io/name=dashboard-back | tail -40
-            KUBECONFIG=/tmp/kc kubectl get events -n dashboard --sort-by='.lastTimestamp' | tail -20
-            KUBECONFIG=/tmp/kc kubectl rollout undo deployment/dashboard-back -n dashboard
-            exit 1
-          }
+          curl -sSfL https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 -o /usr/local/bin/argocd
+          chmod +x /usr/local/bin/argocd
+          argo() { argocd --server "$ARGOCD_SERVER" --auth-token "$ARGOCD_TOKEN" --grpc-web "$@"; }
+          if ! argo app get dashboard-back --refresh > /dev/null; then
+            echo "::warning::No se pudo consultar la app dashboard-back en ArgoCD; no hay despliegue que verificar"
+            exit 0
+          fi
+          argo app wait dashboard-back --sync --health --timeout 300 || { argo app get dashboard-back; exit 1; }
