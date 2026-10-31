@@ -1,0 +1,11 @@
+replicaCount: 2
+
+image:
+  tag: v0.1.0
+
+ingress:
+  host: dashboard-api.jcrlabs.net
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 5
